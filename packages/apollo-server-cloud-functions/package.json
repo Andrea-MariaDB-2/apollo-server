@@ -1,6 +1,6 @@
 {
   "name": "apollo-server-cloud-functions",
-  "version": "3.3.0",
+  "version": "3.6.1",
   "description": "Production-ready Node.js GraphQL server for Google Cloud Functions",
   "keywords": [
     "GraphQL",
@@ -9,7 +9,7 @@
     "Google Cloud Functions",
     "Javascript"
   ],
-  "author": "Apollo <opensource@apollographql.com>",
+  "author": "Apollo <packages@apollographql.com>",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -33,6 +33,6 @@
     "apollo-server-integration-testsuite": "file:../apollo-server-integration-testsuite"
   },
   "peerDependencies": {
-    "graphql": "^15.3.0"
+    "graphql": "^15.3.0 || ^16.0.0"
   }
 }

@@ -5,9 +5,10 @@ import type {
 import type {
   GraphQLRequestContext,
   GraphQLResponse,
+  CacheHint,
+  ValueOrPromise,
 } from 'apollo-server-types';
 import { KeyValueCache, PrefixingKeyValueCache } from 'apollo-server-caching';
-import type { CacheHint, ValueOrPromise } from 'apollo-server-types';
 import { CacheScope } from 'apollo-server-types';
 
 // XXX This should use createSHA from apollo-server-core in order to work on
@@ -29,13 +30,13 @@ interface Options<TContext = Record<string, any>> {
   // This should return a session ID if the user is "logged in", or null if
   // there is no "logged in" user.
   //
-  // If a cachable response has any PRIVATE nodes, then:
+  // If a cacheable response has any PRIVATE nodes, then:
   // - If this hook is not defined, a warning will be logged and it will not be cached.
   // - Else if this hook returns null, it will not be cached.
   // - Else it will be cached under a cache key tagged with the session ID and
   //   mode "private".
   //
-  // If a cachable response has no PRIVATE nodes, then:
+  // If a cacheable response has no PRIVATE nodes, then:
   // - If this hook is not defined or returns null, it will be cached under a cache
   //   key tagged with the mode "no session".
   // - Else it will be cached under a cache key tagged with the mode

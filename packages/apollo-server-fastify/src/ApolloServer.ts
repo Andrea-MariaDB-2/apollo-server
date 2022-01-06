@@ -1,5 +1,6 @@
 import {
   ApolloServerBase,
+  Config,
   convertNodeHttpToRequest,
   GraphQLOptions,
   isHttpQueryError,
@@ -8,7 +9,6 @@ import {
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import accepts from 'fastify-accepts';
 import fastifyCors from 'fastify-cors';
-import fastJson from 'fast-json-stringify';
 
 export interface ServerRegistration {
   path?: string;
@@ -17,21 +17,22 @@ export interface ServerRegistration {
   disableHealthCheck?: boolean;
 }
 
-const stringifyHealthCheck = fastJson({
-  type: 'object',
-  properties: {
-    status: {
-      type: 'string',
-    },
-  },
-});
+export interface FastifyContext {
+  request: FastifyRequest;
+  reply: FastifyReply;
+}
 
-export class ApolloServer extends ApolloServerBase {
+export type ApolloServerFastifyConfig = Config<FastifyContext>;
+
+export class ApolloServer<
+  ContextFunctionParams = FastifyContext,
+> extends ApolloServerBase<ContextFunctionParams> {
   async createGraphQLServerOptions(
-    request?: FastifyRequest,
-    reply?: FastifyReply,
+    request: FastifyRequest,
+    reply: FastifyReply,
   ): Promise<GraphQLOptions> {
-    return this.graphQLServerOptions({ request, reply });
+    const contextParams: FastifyContext = { request, reply };
+    return this.graphQLServerOptions(contextParams);
   }
 
   public createHandler({
@@ -55,12 +56,12 @@ export class ApolloServer extends ApolloServerBase {
           if (onHealthCheck) {
             try {
               await onHealthCheck(request);
-              reply.send(stringifyHealthCheck({ status: 'pass' }));
+              reply.send('{"status":"pass"}');
             } catch (e) {
-              reply.status(503).send(stringifyHealthCheck({ status: 'fail' }));
+              reply.status(503).send('{"status":"fail"}');
             }
           } else {
-            reply.send(stringifyHealthCheck({ status: 'pass' }));
+            reply.send('{"status":"pass"}');
           }
         });
       }
@@ -103,7 +104,7 @@ export class ApolloServer extends ApolloServerBase {
             method: ['GET', 'POST'],
             url: '/',
             preHandler,
-            handler: async (request: FastifyRequest, reply: FastifyReply) => {
+            handler: async (request, reply) => {
               try {
                 const { graphqlResponse, responseInit } = await runHttpQuery(
                   [],

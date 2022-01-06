@@ -1,8 +1,8 @@
 {
   "name": "apollo-server",
-  "version": "3.3.0",
+  "version": "3.6.1",
   "description": "Production ready GraphQL Server",
-  "author": "Apollo <opensource@apollographql.com>",
+  "author": "Apollo <packages@apollographql.com>",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "repository": {
@@ -30,6 +30,6 @@
     "apollo-server-integration-testsuite": "file:../apollo-server-integration-testsuite"
   },
   "peerDependencies": {
-    "graphql": "^15.3.0"
+    "graphql": "^15.3.0 || ^16.0.0"
   }
 }

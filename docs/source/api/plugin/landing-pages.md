@@ -14,7 +14,7 @@ This includes plugins for:
 * [Disabling the landing page entirely](#disabling-the-landing-page)
 
 These plugins work by implementing the [`renderLandingPage`](../../integrations/plugins-event-reference/#renderlandingpage) plugin event, which serves an HTML page whenever a browser includes an `accept: text/html` header. Aside from these, you can also create a  [custom plugin](../../integrations/plugins/) that renders a [custom landing page](../../testing/build-run-queries/#custom-landing-page).
- 
+
 ## Default behavior
 
 If you don't manually install any plugin that implements `renderLandingPage`, Apollo Server does the following by default:
@@ -171,6 +171,51 @@ To enable this link, you need to provide `graphRef` here even if you already pro
 </td>
 </tr>
 
+<tr>
+<td>
+
+###### `document`
+
+`string`
+</td>
+<td>
+
+A GraphQL document (eg, query or mutation) to populate in the Studio Explorer's editor on load.
+
+If you omit this, the Explorer initially loads an example query based on your schema.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+###### `variables`
+
+`Record<string, string>`
+</td>
+<td>
+
+An object containing initial variable values to populate in the Explorer on load.
+
+If provided, these variables should apply to the initial query you provide in `document`.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+###### `headers`
+
+`Record<string, string>`
+</td>
+<td>
+
+An object containing initial HTTP header values to populate in the Explorer on load.
+
+</td>
+</tr>
 
 </tbody>
 </table>
@@ -223,7 +268,7 @@ This plugin takes the same arguments as the [`renderPlaygroundPage` function](ht
 </td>
 <td>
 
-By default, this plugin loads a specific npm version of `@apollographql/graphql-playground-react` from a CDN. The version is hard-coded in `apollo-server-core` and is typically incremented when new versions of the Playground fork are released (this is rare because the project is retired). 
+By default, this plugin loads a specific npm version of `@apollographql/graphql-playground-react` from a CDN. The version is hard-coded in `apollo-server-core` and is typically incremented when new versions of the Playground fork are released (this is rare because the project is retired).
 
 You can specify a different version here.
 

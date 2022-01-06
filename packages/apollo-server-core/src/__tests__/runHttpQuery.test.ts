@@ -3,7 +3,7 @@ import MockReq = require('mock-req');
 import { GraphQLSchema, GraphQLObjectType, GraphQLString } from 'graphql';
 
 import { runHttpQuery, HttpQueryError } from '../runHttpQuery';
-import { generateSchemaHash } from '../utils/schemaHash';
+import type { SchemaHash } from 'apollo-server-types';
 
 const queryType = new GraphQLObjectType({
   name: 'QueryType',
@@ -29,8 +29,9 @@ describe('runHttpQuery', () => {
         query: '{ testString }',
       },
       options: {
+        debug: false,
         schema,
-        schemaHash: generateSchemaHash(schema),
+        schemaHash: 'deprecated' as SchemaHash,
       },
       request: new MockReq(),
     };
@@ -55,6 +56,97 @@ describe('runHttpQuery', () => {
           }) + '\n',
         );
       });
+    });
+  });
+
+  describe('when allowBatchedHttpRequests is false', () => {
+    const mockDisabledBatchQueryRequest = {
+      method: 'GET',
+      query: {
+        query: '{ testString }',
+      },
+      options: {
+        debug: false,
+        schema,
+        schemaHash: 'deprecated' as SchemaHash,
+        allowBatchedHttpRequests: false,
+      },
+      request: new MockReq(),
+    };
+
+    it('succeeds when there are no batched queries in the request', async () => {
+      await expect(
+        runHttpQuery([], mockDisabledBatchQueryRequest),
+      ).resolves.not.toThrow();
+    });
+
+    it('throws when there are batched queries in the request', () => {
+      const batchedQueryRequest = Object.assign(
+        {},
+        mockDisabledBatchQueryRequest,
+        {
+          query: [
+            {
+              query: '{ testString }',
+            },
+            {
+              query: '{ testString }',
+            },
+          ],
+        },
+      );
+      return runHttpQuery([], batchedQueryRequest).catch(
+        (err: HttpQueryError) => {
+          expect(err.statusCode).toEqual(400);
+          expect(err.message).toEqual(
+            JSON.stringify({
+              errors: [
+                {
+                  message: 'Operation batching disabled.',
+                  extensions: { code: 'INTERNAL_SERVER_ERROR' },
+                },
+              ],
+            }) + '\n',
+          );
+        },
+      );
+    });
+  });
+
+  describe('when allowBatchedHttpRequests is true', () => {
+    const mockEnabledBatchQueryRequest = {
+      method: 'GET',
+      query: {
+        query: '{ testString }',
+      },
+      options: {
+        debug: false,
+        schema,
+        schemaHash: 'deprecated' as SchemaHash,
+        allowBatchedHttpRequests: true,
+      },
+      request: new MockReq(),
+    };
+
+    it('succeeds when there are multiple queries in the request', async () => {
+      const multipleQueryRequest = Object.assign(
+        {},
+        mockEnabledBatchQueryRequest,
+        {
+          query: [
+            {
+              query: '{ testString }',
+            },
+            {
+              query: '{ testString }',
+            },
+          ],
+        },
+      );
+
+      await expect(
+        runHttpQuery([], multipleQueryRequest),
+      ).resolves.not.toThrow();
     });
   });
 });

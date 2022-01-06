@@ -28,6 +28,7 @@ import type {
   Config,
   Context,
   ContextFunction,
+  DocumentStore,
   PluginDefinition,
 } from './types';
 
@@ -71,17 +72,15 @@ const NoIntrospection = (context: ValidationContext) => ({
   },
 });
 
-function approximateObjectSize<T>(obj: T): number {
-  return Buffer.byteLength(JSON.stringify(obj), 'utf8');
-}
-
 export type SchemaDerivedData = {
   schema: GraphQLSchema;
+  // Not a very useful schema hash (not the same one schema and usage reporting
+  // use!) but kept around for backwards compatibility.
   schemaHash: SchemaHash;
   // A store that, when enabled (default), will store the parsed and validated
   // versions of operations in-memory, allowing subsequent parses/validates
   // on the same operation to be executed immediately.
-  documentStore?: InMemoryLRUCache<DocumentNode>;
+  documentStore: DocumentStore | null;
 };
 
 type ServerState =
@@ -144,14 +143,16 @@ export class ApolloServerBase<
   private toDispose = new Set<() => Promise<void>>();
   private toDisposeLast = new Set<() => Promise<void>>();
   private drainServers: (() => Promise<void>) | null = null;
-  private experimental_approximateDocumentStoreMiB: Config['experimental_approximateDocumentStoreMiB'];
   private stopOnTerminationSignals: boolean;
   private landingPage: LandingPage | null = null;
 
   // The constructor should be universal across all environments. All environment specific behavior should be set by adding or overriding methods
   constructor(config: Config<ContextFunctionParams>) {
     if (!config) throw new Error('ApolloServer requires options.');
-    this.config = config;
+    this.config = {
+      ...config,
+      nodeEnv: config.nodeEnv ?? process.env.NODE_ENV,
+    };
     const {
       context,
       resolvers,
@@ -168,9 +169,9 @@ export class ApolloServerBase<
       // requestOptions.
       mocks,
       mockEntireSchema,
-      experimental_approximateDocumentStoreMiB,
+      documentStore,
       ...requestOptions
-    } = config;
+    } = this.config;
 
     // Setup logging facilities
     if (config.logger) {
@@ -203,19 +204,8 @@ export class ApolloServerBase<
 
     this.parseOptions = parseOptions;
     this.context = context;
-    this.experimental_approximateDocumentStoreMiB =
-      experimental_approximateDocumentStoreMiB;
 
-    // Allow tests to override process.env.NODE_ENV. As a bonus, this means
-    // we're only reading the env var once in the constructor, which is faster
-    // than reading it over and over as each read is a syscall. Note that an
-    // explicit `__testing_nodeEnv__: undefined` overrides a set environment
-    // variable!
-    const nodeEnv =
-      '__testing_nodeEnv__' in config
-        ? config.__testing_nodeEnv__
-        : process.env.NODE_ENV;
-    const isDev = nodeEnv !== 'production';
+    const isDev = this.config.nodeEnv !== 'production';
 
     // We handle signals if it was explicitly requested, or if we're in Node,
     // not in a test, not in a serverless framework, and it wasn't explicitly
@@ -224,7 +214,9 @@ export class ApolloServerBase<
     this.stopOnTerminationSignals =
       typeof stopOnTerminationSignals === 'boolean'
         ? stopOnTerminationSignals
-        : isNodeLike && nodeEnv !== 'test' && !this.serverlessFramework();
+        : isNodeLike &&
+          this.config.nodeEnv !== 'test' &&
+          !this.serverlessFramework();
 
     // if this is local dev, introspection should turned on
     // in production, we can manually turn introspection on by passing {
@@ -402,7 +394,7 @@ export class ApolloServerBase<
           this.plugins.map(async (plugin) => ({
             serverListener:
               plugin.serverWillStart && (await plugin.serverWillStart(service)),
-            installedImplicity:
+            installedImplicitly:
               isImplicitlyInstallablePlugin(plugin) &&
               plugin.__internal_installed_implicitly__,
           })),
@@ -412,7 +404,7 @@ export class ApolloServerBase<
           maybeTaggedServerListener,
         ): maybeTaggedServerListener is {
           serverListener: GraphQLServerListener;
-          installedImplicity: boolean;
+          installedImplicitly: boolean;
         } => typeof maybeTaggedServerListener.serverListener === 'object',
       );
 
@@ -472,7 +464,7 @@ export class ApolloServerBase<
       if (taggedServerListenersWithRenderLandingPage.length > 1) {
         taggedServerListenersWithRenderLandingPage =
           taggedServerListenersWithRenderLandingPage.filter(
-            (l) => !l.installedImplicity,
+            (l) => !l.installedImplicitly,
           );
       }
       if (taggedServerListenersWithRenderLandingPage.length > 1) {
@@ -675,13 +667,18 @@ export class ApolloServerBase<
   private generateSchemaDerivedData(schema: GraphQLSchema): SchemaDerivedData {
     const schemaHash = generateSchemaHash(schema!);
 
-    // Initialize the document store.  This cannot currently be disabled.
-    const documentStore = this.initializeDocumentStore();
-
     return {
       schema,
       schemaHash,
-      documentStore,
+      // The DocumentStore is schema-derived because we put documents in it after
+      // checking that they pass GraphQL validation against the schema and use
+      // this to skip validation as well as parsing. So we can't reuse the same
+      // DocumentStore for different schemas because that might make us treat
+      // invalid operations as valid.
+      documentStore:
+        this.config.documentStore === undefined
+          ? this.initializeDocumentStore()
+          : this.config.documentStore,
     };
   }
 
@@ -879,9 +876,10 @@ export class ApolloServerBase<
       // only using JSON.stringify on the DocumentNode (and thus doesn't account
       // for unicode characters, etc.), but it should do a reasonable job at
       // providing a caching document store for most operations.
-      maxSize:
-        Math.pow(2, 20) * (this.experimental_approximateDocumentStoreMiB || 30),
-      sizeCalculator: approximateObjectSize,
+      //
+      // If you want to tweak the max size, pass in your own documentStore.
+      maxSize: Math.pow(2, 20) * 30,
+      sizeCalculator: InMemoryLRUCache.jsonBytesSizeCalculator,
     });
   }
 
@@ -1005,7 +1003,7 @@ export class ApolloServerBase<
   // requested with `accept: text/html`. If no landing page is defined by any
   // plugin, returns null. (Specifically null and not undefined; some serverless
   // integrations rely on this to tell the difference between "haven't called
-  // renderLandingPage yet" and "there is no landingß page").
+  // renderLandingPage yet" and "there is no landing page").
   protected getLandingPage(): LandingPage | null {
     this.assertStarted('getLandingPage');
 

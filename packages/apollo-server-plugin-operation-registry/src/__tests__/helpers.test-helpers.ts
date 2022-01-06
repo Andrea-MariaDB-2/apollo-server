@@ -16,10 +16,9 @@ import type {
 
 export const defaultStore = () => new InMemoryLRUCache();
 
-export const genericSchemaHash = 'abc123';
 export const genericStorageSecret = 'someStorageSecret';
 export const genericServiceID = 'test-service';
-export const genericApiKeyHash = 'someapikeyhash123';
+export const genericApiKeyHash = 'some-api-key-hash123';
 export const defaultTestAgentPollSeconds = 60;
 
 export const defaultAgentOptions: AgentOptions = {

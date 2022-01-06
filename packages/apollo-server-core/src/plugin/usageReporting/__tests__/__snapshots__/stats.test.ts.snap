@@ -3,7 +3,6 @@
 exports[`Check query latency stats when adding a forbidden trace 1`] = `
 OurContextualizedStats {
   "context": Object {
-    "clientReferenceId": "reference",
     "clientVersion": "version",
   },
   "perTypeStat": Object {},
@@ -327,6 +326,7 @@ OurContextualizedStats {
     "registeredOperationCount": 0,
     "requestCount": 1,
     "requestsWithErrorsCount": 0,
+    "requestsWithoutFieldInstrumentation": 0,
     "rootErrorStats": OurPathErrorStats {
       "children": Object {},
       "errorsCount": 0,
@@ -339,7 +339,6 @@ OurContextualizedStats {
 exports[`Check query latency stats when adding a fully cached trace 1`] = `
 OurContextualizedStats {
   "context": Object {
-    "clientReferenceId": "reference",
     "clientVersion": "version",
   },
   "perTypeStat": Object {},
@@ -663,6 +662,7 @@ OurContextualizedStats {
     "registeredOperationCount": 0,
     "requestCount": 1,
     "requestsWithErrorsCount": 0,
+    "requestsWithoutFieldInstrumentation": 0,
     "rootErrorStats": OurPathErrorStats {
       "children": Object {},
       "errorsCount": 0,
@@ -675,7 +675,6 @@ OurContextualizedStats {
 exports[`Check query latency stats when adding a persisted hit trace 1`] = `
 OurContextualizedStats {
   "context": Object {
-    "clientReferenceId": "reference",
     "clientVersion": "version",
   },
   "perTypeStat": Object {},
@@ -999,6 +998,7 @@ OurContextualizedStats {
     "registeredOperationCount": 0,
     "requestCount": 1,
     "requestsWithErrorsCount": 0,
+    "requestsWithoutFieldInstrumentation": 0,
     "rootErrorStats": OurPathErrorStats {
       "children": Object {},
       "errorsCount": 0,
@@ -1011,7 +1011,6 @@ OurContextualizedStats {
 exports[`Check query latency stats when adding a persisted miss trace 1`] = `
 OurContextualizedStats {
   "context": Object {
-    "clientReferenceId": "reference",
     "clientVersion": "version",
   },
   "perTypeStat": Object {},
@@ -1335,6 +1334,7 @@ OurContextualizedStats {
     "registeredOperationCount": 0,
     "requestCount": 1,
     "requestsWithErrorsCount": 0,
+    "requestsWithoutFieldInstrumentation": 0,
     "rootErrorStats": OurPathErrorStats {
       "children": Object {},
       "errorsCount": 0,
@@ -1347,7 +1347,6 @@ OurContextualizedStats {
 exports[`Check query latency stats when adding a private cached trace 1`] = `
 OurContextualizedStats {
   "context": Object {
-    "clientReferenceId": "reference",
     "clientVersion": "version",
   },
   "perTypeStat": Object {},
@@ -1671,6 +1670,7 @@ OurContextualizedStats {
     "registeredOperationCount": 0,
     "requestCount": 1,
     "requestsWithErrorsCount": 0,
+    "requestsWithoutFieldInstrumentation": 0,
     "rootErrorStats": OurPathErrorStats {
       "children": Object {},
       "errorsCount": 0,
@@ -1683,7 +1683,6 @@ OurContextualizedStats {
 exports[`Check query latency stats when adding a public cached trace 1`] = `
 OurContextualizedStats {
   "context": Object {
-    "clientReferenceId": "reference",
     "clientVersion": "version",
   },
   "perTypeStat": Object {},
@@ -2007,6 +2006,7 @@ OurContextualizedStats {
     "registeredOperationCount": 0,
     "requestCount": 1,
     "requestsWithErrorsCount": 0,
+    "requestsWithoutFieldInstrumentation": 0,
     "rootErrorStats": OurPathErrorStats {
       "children": Object {},
       "errorsCount": 0,
@@ -2019,7 +2019,6 @@ OurContextualizedStats {
 exports[`Check query latency stats when adding a registered trace 1`] = `
 OurContextualizedStats {
   "context": Object {
-    "clientReferenceId": "reference",
     "clientVersion": "version",
   },
   "perTypeStat": Object {},
@@ -2343,6 +2342,7 @@ OurContextualizedStats {
     "registeredOperationCount": 1,
     "requestCount": 1,
     "requestsWithErrorsCount": 0,
+    "requestsWithoutFieldInstrumentation": 0,
     "rootErrorStats": OurPathErrorStats {
       "children": Object {},
       "errorsCount": 0,
@@ -2355,7 +2355,6 @@ OurContextualizedStats {
 exports[`Check query latency stats when adding a single trace 1`] = `
 OurContextualizedStats {
   "context": Object {
-    "clientReferenceId": "reference",
     "clientVersion": "version",
   },
   "perTypeStat": Object {},
@@ -2679,6 +2678,7 @@ OurContextualizedStats {
     "registeredOperationCount": 0,
     "requestCount": 1,
     "requestsWithErrorsCount": 0,
+    "requestsWithoutFieldInstrumentation": 0,
     "rootErrorStats": OurPathErrorStats {
       "children": Object {},
       "errorsCount": 0,
@@ -2691,7 +2691,6 @@ OurContextualizedStats {
 exports[`Check query latency stats when adding an errored trace  1`] = `
 OurContextualizedStats {
   "context": Object {
-    "clientReferenceId": "reference",
     "clientVersion": "version",
   },
   "perTypeStat": Object {},
@@ -3015,6 +3014,7 @@ OurContextualizedStats {
     "registeredOperationCount": 1,
     "requestCount": 1,
     "requestsWithErrorsCount": 1,
+    "requestsWithoutFieldInstrumentation": 0,
     "rootErrorStats": OurPathErrorStats {
       "children": Object {
         "user": OurPathErrorStats {
@@ -3033,7 +3033,6 @@ OurContextualizedStats {
 exports[`Check query latency stats when merging errored traces 1`] = `
 OurContextualizedStats {
   "context": Object {
-    "clientReferenceId": "reference",
     "clientVersion": "version",
   },
   "perTypeStat": Object {},
@@ -3357,6 +3356,7 @@ OurContextualizedStats {
     "registeredOperationCount": 4,
     "requestCount": 4,
     "requestsWithErrorsCount": 4,
+    "requestsWithoutFieldInstrumentation": 0,
     "rootErrorStats": OurPathErrorStats {
       "children": Object {
         "account": OurPathErrorStats {
@@ -3392,7 +3392,6 @@ OurContextualizedStats {
 exports[`Check query latency stats when merging non-errored traces 1`] = `
 OurContextualizedStats {
   "context": Object {
-    "clientReferenceId": "reference",
     "clientVersion": "version",
   },
   "perTypeStat": Object {},
@@ -3716,6 +3715,7 @@ OurContextualizedStats {
     "registeredOperationCount": 0,
     "requestCount": 6,
     "requestsWithErrorsCount": 0,
+    "requestsWithoutFieldInstrumentation": 0,
     "rootErrorStats": OurPathErrorStats {
       "children": Object {},
       "errorsCount": 0,
@@ -3728,15 +3728,14 @@ OurContextualizedStats {
 exports[`Check type stats add multiple errored traces trace 1`] = `
 OurContextualizedStats {
   "context": Object {
-    "clientReferenceId": "reference",
     "clientVersion": "version",
   },
   "perTypeStat": Object {
     "Query": OurTypeStat {
       "perFieldStat": Object {
         "user": OurFieldStat {
-          "count": 2,
           "errorsCount": 0,
+          "estimatedExecutionCount": 2,
           "latencyCount": DurationHistogram {
             "buckets": Array [
               0,
@@ -3815,6 +3814,7 @@ OurContextualizedStats {
               0,
             ],
           },
+          "observedExecutionCount": 2,
           "requestsWithErrorsCount": 0,
           "returnType": "User!",
         },
@@ -3823,8 +3823,8 @@ OurContextualizedStats {
     "User": OurTypeStat {
       "perFieldStat": Object {
         "email": OurFieldStat {
-          "count": 2,
           "errorsCount": 4,
+          "estimatedExecutionCount": 2,
           "latencyCount": DurationHistogram {
             "buckets": Array [
               2,
@@ -3903,12 +3903,13 @@ OurContextualizedStats {
               0,
             ],
           },
+          "observedExecutionCount": 2,
           "requestsWithErrorsCount": 2,
           "returnType": "String!",
         },
         "friends": OurFieldStat {
-          "count": 2,
           "errorsCount": 0,
+          "estimatedExecutionCount": 2,
           "latencyCount": DurationHistogram {
             "buckets": Array [
               2,
@@ -3987,6 +3988,7 @@ OurContextualizedStats {
               0,
             ],
           },
+          "observedExecutionCount": 2,
           "requestsWithErrorsCount": 0,
           "returnType": "[String!]!",
         },
@@ -4313,6 +4315,7 @@ OurContextualizedStats {
     "registeredOperationCount": 2,
     "requestCount": 2,
     "requestsWithErrorsCount": 2,
+    "requestsWithoutFieldInstrumentation": 0,
     "rootErrorStats": OurPathErrorStats {
       "children": Object {
         "user": OurPathErrorStats {
@@ -4337,15 +4340,14 @@ OurContextualizedStats {
 exports[`Check type stats add multiple federated trace 1`] = `
 OurContextualizedStats {
   "context": Object {
-    "clientReferenceId": "reference",
     "clientVersion": "version",
   },
   "perTypeStat": Object {
     "Query": OurTypeStat {
       "perFieldStat": Object {
         "user": OurFieldStat {
-          "count": 2,
           "errorsCount": 0,
+          "estimatedExecutionCount": 2,
           "latencyCount": DurationHistogram {
             "buckets": Array [
               0,
@@ -4424,6 +4426,7 @@ OurContextualizedStats {
               0,
             ],
           },
+          "observedExecutionCount": 2,
           "requestsWithErrorsCount": 0,
           "returnType": "User!",
         },
@@ -4432,8 +4435,8 @@ OurContextualizedStats {
     "User": OurTypeStat {
       "perFieldStat": Object {
         "email": OurFieldStat {
-          "count": 2,
           "errorsCount": 0,
+          "estimatedExecutionCount": 2,
           "latencyCount": DurationHistogram {
             "buckets": Array [
               2,
@@ -4512,12 +4515,13 @@ OurContextualizedStats {
               0,
             ],
           },
+          "observedExecutionCount": 2,
           "requestsWithErrorsCount": 0,
           "returnType": "String!",
         },
         "friends": OurFieldStat {
-          "count": 2,
           "errorsCount": 0,
+          "estimatedExecutionCount": 2,
           "latencyCount": DurationHistogram {
             "buckets": Array [
               2,
@@ -4596,6 +4600,7 @@ OurContextualizedStats {
               0,
             ],
           },
+          "observedExecutionCount": 2,
           "requestsWithErrorsCount": 0,
           "returnType": "[String!]!",
         },
@@ -4922,6 +4927,7 @@ OurContextualizedStats {
     "registeredOperationCount": 2,
     "requestCount": 2,
     "requestsWithErrorsCount": 0,
+    "requestsWithoutFieldInstrumentation": 0,
     "rootErrorStats": OurPathErrorStats {
       "children": Object {},
       "errorsCount": 0,
@@ -4934,15 +4940,14 @@ OurContextualizedStats {
 exports[`Check type stats add multiple non-federated trace 1`] = `
 OurContextualizedStats {
   "context": Object {
-    "clientReferenceId": "reference",
     "clientVersion": "version",
   },
   "perTypeStat": Object {
     "Query": OurTypeStat {
       "perFieldStat": Object {
         "user": OurFieldStat {
-          "count": 2,
           "errorsCount": 0,
+          "estimatedExecutionCount": 2,
           "latencyCount": DurationHistogram {
             "buckets": Array [
               0,
@@ -5021,6 +5026,7 @@ OurContextualizedStats {
               0,
             ],
           },
+          "observedExecutionCount": 2,
           "requestsWithErrorsCount": 0,
           "returnType": "User!",
         },
@@ -5029,8 +5035,8 @@ OurContextualizedStats {
     "User": OurTypeStat {
       "perFieldStat": Object {
         "email": OurFieldStat {
-          "count": 2,
           "errorsCount": 0,
+          "estimatedExecutionCount": 2,
           "latencyCount": DurationHistogram {
             "buckets": Array [
               2,
@@ -5109,12 +5115,13 @@ OurContextualizedStats {
               0,
             ],
           },
+          "observedExecutionCount": 2,
           "requestsWithErrorsCount": 0,
           "returnType": "String!",
         },
         "friends": OurFieldStat {
-          "count": 2,
           "errorsCount": 0,
+          "estimatedExecutionCount": 2,
           "latencyCount": DurationHistogram {
             "buckets": Array [
               2,
@@ -5193,6 +5200,7 @@ OurContextualizedStats {
               0,
             ],
           },
+          "observedExecutionCount": 2,
           "requestsWithErrorsCount": 0,
           "returnType": "[String!]!",
         },
@@ -5519,6 +5527,7 @@ OurContextualizedStats {
     "registeredOperationCount": 2,
     "requestCount": 2,
     "requestsWithErrorsCount": 0,
+    "requestsWithoutFieldInstrumentation": 0,
     "rootErrorStats": OurPathErrorStats {
       "children": Object {},
       "errorsCount": 0,
@@ -5531,15 +5540,14 @@ OurContextualizedStats {
 exports[`Check type stats add single non-federated trace 1`] = `
 OurContextualizedStats {
   "context": Object {
-    "clientReferenceId": "reference",
     "clientVersion": "version",
   },
   "perTypeStat": Object {
     "Query": OurTypeStat {
       "perFieldStat": Object {
         "user": OurFieldStat {
-          "count": 1,
           "errorsCount": 0,
+          "estimatedExecutionCount": 1,
           "latencyCount": DurationHistogram {
             "buckets": Array [
               0,
@@ -5618,6 +5626,7 @@ OurContextualizedStats {
               0,
             ],
           },
+          "observedExecutionCount": 1,
           "requestsWithErrorsCount": 0,
           "returnType": "User!",
         },
@@ -5626,8 +5635,8 @@ OurContextualizedStats {
     "User": OurTypeStat {
       "perFieldStat": Object {
         "email": OurFieldStat {
-          "count": 1,
           "errorsCount": 0,
+          "estimatedExecutionCount": 1,
           "latencyCount": DurationHistogram {
             "buckets": Array [
               1,
@@ -5706,12 +5715,13 @@ OurContextualizedStats {
               0,
             ],
           },
+          "observedExecutionCount": 1,
           "requestsWithErrorsCount": 0,
           "returnType": "String!",
         },
         "friends": OurFieldStat {
-          "count": 1,
           "errorsCount": 0,
+          "estimatedExecutionCount": 1,
           "latencyCount": DurationHistogram {
             "buckets": Array [
               1,
@@ -5790,6 +5800,7 @@ OurContextualizedStats {
               0,
             ],
           },
+          "observedExecutionCount": 1,
           "requestsWithErrorsCount": 0,
           "returnType": "[String!]!",
         },
@@ -6116,6 +6127,7 @@ OurContextualizedStats {
     "registeredOperationCount": 1,
     "requestCount": 1,
     "requestsWithErrorsCount": 0,
+    "requestsWithoutFieldInstrumentation": 0,
     "rootErrorStats": OurPathErrorStats {
       "children": Object {},
       "errorsCount": 0,

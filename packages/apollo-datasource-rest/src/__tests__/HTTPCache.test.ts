@@ -8,7 +8,7 @@ import { MapKeyValueCache } from './MapKeyValueCache';
 describe('HTTPCache', () => {
   let store: MapKeyValueCache<string>;
   let httpCache: HTTPCache;
-  let clock: FakeTimers.Clock;
+  let clock: FakeTimers.InstalledClock;
 
   beforeAll(() => {
     clock = FakeTimers.install();
@@ -171,7 +171,7 @@ describe('HTTPCache', () => {
       expect(response.headers.get('Age')).toEqual('0');
     });
 
-    it('does not store a response with an overriden TTL and a non-success status code', async () => {
+    it('does not store a response with an overridden TTL and a non-success status code', async () => {
       fetch.mockResponseOnce(
         'Internal server error',
         { 'Cache-Control': 'max-age=30' },

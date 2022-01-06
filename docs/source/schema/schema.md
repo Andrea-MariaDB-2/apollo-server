@@ -118,7 +118,7 @@ Most of the types you define in a GraphQL schema are object types. An object typ
 
 Two object types _can_ include each other as fields, as is the case in our example schema from earlier:
 
-```graphql
+```graphql{3,8}
 type Book {
   title: String
   author: Author
@@ -127,6 +127,20 @@ type Book {
 type Author {
   name: String
   books: [Book]
+}
+```
+
+#### The `__typename` field
+
+Every object type in your schema automatically has a field named `__typename` (you don't need to define it). The `__typename` field returns the object type's name as a `String` (e.g., `Book` or `Author`).
+
+GraphQL clients use an object's `__typename` for many purposes, such as to determine which type was returned by a field that can return _multiple_ types (i.e., a [union or interface](./unions-interfaces/)). Apollo Client relies on `__typename` when caching results, so it automatically includes `__typename` in every object of every query.
+
+Because `__typename` is always present, this is a valid query for any GraphQL server:
+
+```graphql
+query UniversalQuery {
+  __typename
 }
 ```
 
@@ -149,7 +163,7 @@ With a REST-based API, books and authors would probably be returned by different
 
 #### Structuring a query
 
-When your clients build queries to execute against your data graph, those queries match the shape of the object types you define in your schema.
+When your clients build queries to execute against your graph, those queries match the shape of the object types you define in your schema.
 
 Based on our example schema so far, a client could execute the following query, which requests both a list of all book titles _and_ a list of all author names:
 
@@ -391,7 +405,7 @@ See [Unions and interfaces](./unions-interfaces/).
 
 ## Growing with a schema
 
-As your organization grows and evolves, your data graph grows and evolves with it. New products and features introduce new schema types and fields. To track these changes over time, you should maintain your schema's definition in version control.
+As your organization grows and evolves, your graph grows and evolves with it. New products and features introduce new schema types and fields. To track these changes over time, you should maintain your schema's definition in version control.
 
 Most _additive_ changes to a schema are safe and backward compatible. However, changes that remove or alter _existing_ behavior might be _breaking_ changes for one or more of your existing clients. All of the following schema changes are potentially breaking changes:
 
@@ -404,7 +418,7 @@ A graph management tool such as [Apollo Studio](https://studio.apollographql.com
 
 ## Descriptions (docstrings)
 
-GraphQL's schema definition language (SDL) supports Markdown-enabled documentation strings, called **descriptions**. These help consumers of your data graph discover fields and learn how to use them.
+GraphQL's schema definition language (SDL) supports Markdown-enabled documentation strings, called **descriptions**. These help consumers of your graph discover fields and learn how to use them.
 
 The following snippet shows how to use both single-line string literals and multi-line blocks:
 

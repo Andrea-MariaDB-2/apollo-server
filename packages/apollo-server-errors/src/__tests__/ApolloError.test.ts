@@ -47,10 +47,32 @@ describe('ApolloError', () => {
         }),
     ).toThrow(/Pass extensions directly/);
   });
+
+  it('provides toJSON method', () => {
+    const error = new ApolloError('My original message', 'A_CODE', {
+      arbitrary: 'user_data',
+    });
+
+    expect(error.toJSON()).toEqual({
+      message: 'My original message',
+      extensions: {
+        code: 'A_CODE',
+        arbitrary: 'user_data',
+      },
+    });
+  });
+
+  it('provides toString method', () => {
+    const error = new ApolloError('My original message', 'A_CODE', {
+      arbitrary: 'user_data',
+    });
+
+    expect(error.toString()).toEqual('My original message');
+  });
 });
 
 describe('ForbiddenError', () => {
-  it('supports abritrary data being passed', () => {
+  it('supports arbitrary data being passed', () => {
     const error = new ForbiddenError('My message', {
       arbitrary: 'user_data',
     });
@@ -63,7 +85,7 @@ describe('ForbiddenError', () => {
 });
 
 describe('AuthenticationError', () => {
-  it('supports abritrary data being passed', () => {
+  it('supports arbitrary data being passed', () => {
     const error = new AuthenticationError('My message', {
       arbitrary: 'user_data',
     });

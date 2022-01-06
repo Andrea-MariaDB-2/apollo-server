@@ -1,7 +1,7 @@
 {
   "name": "apollo-server-caching",
-  "version": "3.1.0",
-  "author": "Apollo <opensource@apollographql.com>",
+  "version": "3.3.0",
+  "author": "Apollo <packages@apollographql.com>",
   "license": "MIT",
   "repository": {
     "type": "git",

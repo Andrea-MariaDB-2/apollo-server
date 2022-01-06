@@ -44,6 +44,8 @@ export interface CacheOptions {
 export type Body = BodyInit | object;
 export { Request };
 
+const NODE_ENV = process.env.NODE_ENV;
+
 export abstract class RESTDataSource<TContext = any> extends DataSource {
   httpCache!: HTTPCache;
   context!: TContext;
@@ -64,7 +66,7 @@ export abstract class RESTDataSource<TContext = any> extends DataSource {
   // You can override this to remove query parameters or compute a cache key in any way that makes sense.
   // For example, you could use this to take Vary header fields into account.
   // Although we do validate header fields and don't serve responses from cache when they don't match,
-  // new reponses overwrite old ones with different vary header fields.
+  // new responses overwrite old ones with different vary header fields.
   protected cacheKeyFor(request: Request): string {
     return request.url;
   }
@@ -117,7 +119,7 @@ export abstract class RESTDataSource<TContext = any> extends DataSource {
       contentLength !== '0' &&
       contentType &&
       (contentType.startsWith('application/json') ||
-        contentType.startsWith('application/hal+json'))
+        contentType.endsWith('+json'))
     ) {
       return response.json();
     } else {
@@ -282,7 +284,7 @@ export abstract class RESTDataSource<TContext = any> extends DataSource {
     request: Request,
     fn: () => Promise<TResult>,
   ): Promise<TResult> {
-    if (process.env.NODE_ENV === 'development') {
+    if (NODE_ENV === 'development') {
       // We're not using console.time because that isn't supported on Cloudflare
       const startTime = Date.now();
       try {

@@ -10,7 +10,7 @@ import {
   DocumentNode,
 } from 'graphql';
 
-import type { GraphQLResponse } from 'apollo-server-types';
+import type { GraphQLResponse, SchemaHash } from 'apollo-server-types';
 
 import { processGraphQLRequest, GraphQLRequest } from '../requestPipeline';
 import type { Request } from 'apollo-server-env';
@@ -29,7 +29,6 @@ import type {
   GraphQLRequestContext,
 } from 'apollo-server-plugin-base';
 import { InMemoryLRUCache } from 'apollo-server-caching';
-import { generateSchemaHash } from '../utils/schemaHash';
 import { newCachePolicy } from '../cachePolicy';
 
 // This is a temporary kludge to ensure we preserve runQuery behavior with the
@@ -48,12 +47,12 @@ function runQuery(
     http: options.request,
   };
 
-  const schemaHash = generateSchemaHash(schema);
-
   return processGraphQLRequest(options, {
     request,
     schema: options.schema,
-    schemaHash,
+    // Relying on specific values for this deprecated field isn't great,
+    // but we at least test that it gets passed through.
+    schemaHash: 'deprecated' as SchemaHash,
     metrics: {},
     logger: console,
     context: options.context || {},
@@ -412,11 +411,7 @@ describe('runQuery', () => {
 
         const invocation = requestDidStart.mock.calls[0][0];
         expect(invocation).toHaveProperty('schema', schema);
-        expect(invocation).toHaveProperty(
-          /* Shorter as a RegExp */
-          'schemaHash',
-          expect.stringMatching(/^1a1814b60b/),
-        );
+        expect(invocation).toHaveProperty('schemaHash', 'deprecated');
       });
     });
 
@@ -822,7 +817,8 @@ describe('runQuery', () => {
             }),
           });
 
-          const differentFieldResolver = () => "I'm diffrnt, ya, I'm diffrnt.";
+          const differentFieldResolver = () =>
+            "I'm different, ya, I'm different.";
 
           const queryString = `{ testString } `;
 
@@ -867,7 +863,7 @@ describe('runQuery', () => {
           expect(didResolveField).toHaveBeenCalledTimes(2);
 
           expect(resultFromSchemaWithoutResolver.data).toEqual({
-            testString: "I'm diffrnt, ya, I'm diffrnt.",
+            testString: "I'm different, ya, I'm different.",
           });
         });
       });
@@ -1107,12 +1103,6 @@ describe('runQuery', () => {
       return '{\n' + query + '}';
     }
 
-    // This should use the same logic as the calculation in InMemoryLRUCache:
-    // https://github.com/apollographql/apollo-server/blob/94b98ff3/packages/apollo-server-caching/src/InMemoryLRUCache.ts#L23
-    function approximateObjectSize<T>(obj: T): number {
-      return Buffer.byteLength(JSON.stringify(obj), 'utf8');
-    }
-
     it('validates each time when the documentStore is not present', async () => {
       expect.assertions(4);
 
@@ -1167,12 +1157,12 @@ describe('runQuery', () => {
       // size of the two smaller queries.  All three of these queries will never
       // fit into this cache, so we'll roll through them all.
       const maxSize =
-        approximateObjectSize(parse(querySmall1)) +
-        approximateObjectSize(parse(querySmall2));
+        InMemoryLRUCache.jsonBytesSizeCalculator(parse(querySmall1)) +
+        InMemoryLRUCache.jsonBytesSizeCalculator(parse(querySmall2));
 
       const documentStore = new InMemoryLRUCache<DocumentNode>({
         maxSize,
-        sizeCalculator: approximateObjectSize,
+        sizeCalculator: InMemoryLRUCache.jsonBytesSizeCalculator,
       });
 
       await runRequest({ plugins, documentStore, queryString: querySmall1 });

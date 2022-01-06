@@ -6,7 +6,7 @@ orbs:
   # `oss` is a local reference to the package.  The source for Apollo Orbs can
   # be found at http://github.com/apollographql/CircleCI-Orbs/.
   # We could use Renovate to bump this version via PR, but that's not setup now.
-  oss: apollo/oss-ci-cd-tooling@0.0.19
+  oss: apollo/oss-ci-cd-tooling@0.0.20
 
 commands:
   # These are the steps used for each version of Node which we're testing
@@ -18,7 +18,7 @@ commands:
     description: "Set up Node.js environment and install dependencies"
     steps:
       - oss/install_specific_npm_version:
-          version: '7'
+          version: '8'
       - checkout
       - oss/npm_clean_install_with_caching
 
@@ -41,11 +41,11 @@ commands:
 jobs:
   # Platform tests, each with the same tests but different platform or version.
   # The docker tag represents the Node.js version and the full list is available
-  # at https://hub.docker.com/r/circleci/node/.
+  # at https://hub.docker.com/r/cimg/node/.
 
   NodeJS 12:
     docker:
-    - image: cimg/node:12.22.1
+    - image: cimg/node:12.22.6
     steps:
       - common_test_steps
       # We will save the results of this one particular invocation to use in
@@ -60,22 +60,35 @@ jobs:
 
   NodeJS 14:
     docker:
-    - image: cimg/node:14.16.1
+    - image: cimg/node:14.18.0
     steps:
       - common_test_steps
 
   NodeJS 16:
     docker:
-    - image: cimg/node:16.0.0
+    - image: cimg/node:16.10.0
+    steps:
+      - common_test_steps
+
+  NodeJS 17:
+    docker:
+    - image: cimg/node:17.2.0
     steps:
       - common_test_steps
 
   Prettier:
     docker:
-    - image: cimg/node:16.0.0
+    - image: cimg/node:16.10.0
     steps:
       - common_node_steps
       - run: npm run prettier-check
+
+  Spell check:
+    docker:
+    - image: cimg/node:16.10.0
+    steps:
+      - common_node_steps
+      - run: npm run spell-check
 
   # We make CI fail if any file contains FIX and ME right next to each other.
   # This means that when working on a big PR, you can throw in notes that you
@@ -127,8 +140,11 @@ workflows:
           <<: *common_non_publish_filters
       - NodeJS 16:
           <<: *common_non_publish_filters
+      - NodeJS 17:
+          <<: *common_non_publish_filters
       - "Check for FIXM\x45"
       - Prettier
+      - Spell check
       - oss/lerna_tarballs:
           name: Package tarballs
           <<: *common_non_publish_filters
@@ -136,6 +152,7 @@ workflows:
             - NodeJS 12
             - NodeJS 14
             - NodeJS 16
+            - NodeJS 17
             - Prettier
       - oss/dry_run:
           name: Dry-run
@@ -144,6 +161,7 @@ workflows:
             - NodeJS 12
             - NodeJS 14
             - NodeJS 16
+            - NodeJS 17
             - Prettier
       - oss/confirmation:
           name: Confirmation

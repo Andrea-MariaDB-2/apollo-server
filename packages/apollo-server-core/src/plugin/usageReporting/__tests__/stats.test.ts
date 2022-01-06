@@ -4,7 +4,6 @@ import { OurContextualizedStats, SizeEstimator } from '../stats';
 import { DurationHistogram } from '../durationHistogram';
 
 const statsContext = {
-  clientReferenceId: 'reference',
   clientVersion: 'version',
 };
 
@@ -17,6 +16,7 @@ const baseTrace = new Trace({
   root: null,
   signature: 'signature',
   details: null,
+  fieldExecutionWeight: 1,
 });
 // TODO: add a federated trace
 describe('Check query latency stats when', () => {
@@ -227,7 +227,7 @@ describe('Check query latency stats when', () => {
       }),
       new SizeEstimator(),
     );
-    for (let _ in [1, 2]) {
+    for (const _ in [1, 2]) {
       contextualizedStats.addTrace(
         new Trace({
           ...baseTrace,
@@ -320,7 +320,7 @@ describe('Check query latency stats when', () => {
       }),
       sizeEstimator,
     );
-    for (let _ in [1, 2]) {
+    for (const _ in [1, 2]) {
       contextualizedStats.addTrace(
         new Trace({
           ...baseTrace,

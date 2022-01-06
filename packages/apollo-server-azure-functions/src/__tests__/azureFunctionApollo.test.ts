@@ -8,6 +8,14 @@ import url from 'url';
 import type { IncomingMessage, ServerResponse } from 'http';
 import typeis from 'type-is';
 
+const healthCheckRequest = {
+  method: 'GET',
+  body: null,
+  url: '/.well-known/apollo/server-health',
+  query: null,
+  headers: {},
+};
+
 const createAzureFunction = async (options: CreateAppOptions = {}) => {
   const server = new ApolloServer(
     (options.graphqlOptions as Config) || { schema: Schema },
@@ -19,7 +27,8 @@ const createAzureFunction = async (options: CreateAppOptions = {}) => {
     // return 404 if path is /bogus-route to pass the test, azure doesn't have paths
     if (req.url!.includes('/bogus-route')) {
       res.statusCode = 404;
-      return res.end();
+      res.end();
+      return;
     }
 
     let body = '';
@@ -52,7 +61,7 @@ const createAzureFunction = async (options: CreateAppOptions = {}) => {
         done(error: any, result: any) {
           if (error) throw error;
           res.statusCode = result.status;
-          for (let key in result.headers) {
+          for (const key in result.headers) {
             if (result.headers.hasOwnProperty(key)) {
               res.setHeader(key, result.headers[key]);
             }
@@ -94,7 +103,7 @@ describe('integration:AzureFunctions', () => {
     const request = {
       method: 'GET',
       body: null,
-      path: '/graphql',
+      url: '/graphql',
       query: query,
       headers: {},
     };
@@ -139,7 +148,7 @@ describe('integration:AzureFunctions', () => {
     const request = {
       method: 'OPTIONS',
       body: null,
-      path: '/graphql',
+      url: '/graphql',
       query: null,
       headers: {},
     };
@@ -161,7 +170,7 @@ describe('integration:AzureFunctions', () => {
     const request = {
       method: 'GET',
       body: null,
-      path: '/',
+      url: '/',
       query: null,
       headers: {
         Accept: 'text/html',
@@ -186,5 +195,81 @@ describe('integration:AzureFunctions', () => {
       },
     };
     handler(context as any, request as any);
+  });
+
+  describe('health checks', () => {
+    it('creates a health check endpoint', async () => {
+      const server = new ApolloServer({ schema: Schema });
+      const handler = server.createHandler({});
+
+      const context: any = {};
+      const p = new Promise((resolve, reject) => {
+        context.done = (error: Error, result: any) => {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(result);
+          }
+        };
+      });
+
+      handler(context as any, healthCheckRequest as any);
+      const result: any = await p;
+      expect(result.status).toEqual(200);
+      expect(result.body).toEqual(JSON.stringify({ status: 'pass' }));
+      expect(result.headers['Content-Type']).toEqual('application/health+json');
+    });
+
+    it('provides a callback for the health check', async () => {
+      const server = new ApolloServer({ schema: Schema });
+      const handler = server.createHandler({
+        onHealthCheck: async () => {
+          return new Promise((resolve) => {
+            return resolve('Success!');
+          });
+        },
+      });
+
+      const context: any = {};
+      const p = new Promise((resolve, reject) => {
+        context.done = (error: Error, result: any) => {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(result);
+          }
+        };
+      });
+
+      handler(context as any, healthCheckRequest as any);
+      const result: any = await p;
+      expect(result.status).toEqual(200);
+      expect(result.body).toEqual(JSON.stringify({ status: 'pass' }));
+      expect(result.headers['Content-Type']).toEqual('application/health+json');
+    });
+
+    it('returns a 503 if health check fails', async () => {
+      const server = new ApolloServer({ schema: Schema });
+      const handler = server.createHandler({
+        onHealthCheck: async () => {
+          return new Promise(() => {
+            throw new Error('Failed to connect!');
+          });
+        },
+      });
+
+      const context = {
+        done(error: any, result: any) {
+          if (error) throw error;
+          expect(result.status).toEqual(503);
+          expect(result.body).toEqual(JSON.stringify({ status: 'fail' }));
+          expect(result.headers['Content-Type']).toEqual(
+            'application/health+json',
+          );
+        },
+      };
+
+      handler(context as any, healthCheckRequest as any);
+    });
   });
 });

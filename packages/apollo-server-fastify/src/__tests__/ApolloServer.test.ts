@@ -178,7 +178,7 @@ describe('apollo-server-fastify', () => {
       const { httpServer } = await createServer({
         typeDefs,
         resolvers,
-        __testing_nodeEnv__: undefined, // default landing page
+        nodeEnv: '', // default landing page
       });
 
       await request(httpServer)
@@ -215,8 +215,8 @@ describe('apollo-server-fastify', () => {
       await apolloFetch({ query: '{hello}' });
     });
 
-    describe('healthchecks', () => {
-      it('creates a healthcheck endpoint', async () => {
+    describe('health checks', () => {
+      it('creates a health check endpoint', async () => {
         const { httpServer } = await createServer({
           typeDefs,
           resolvers,
@@ -227,7 +227,7 @@ describe('apollo-server-fastify', () => {
           .expect(200, { status: 'pass' });
       });
 
-      it('provides a callback for the healthcheck', async () => {
+      it('provides a callback for the health check', async () => {
         const { httpServer } = await createServer(
           {
             typeDefs,
@@ -283,7 +283,7 @@ describe('apollo-server-fastify', () => {
             throw new AuthenticationError('valid result');
           },
           // Stack trace not included for NODE_ENV=test
-          __testing_nodeEnv__: undefined,
+          nodeEnv: '',
         });
 
         const apolloFetch = createApolloFetch({ uri });
@@ -299,7 +299,7 @@ describe('apollo-server-fastify', () => {
         expect(e.extensions.exception.stacktrace).toBeDefined();
       });
 
-      it('propogates error codes in dev mode', async () => {
+      it('propagates error codes in dev mode', async () => {
         const { url: uri } = await createServer({
           typeDefs: gql`
             type Query {
@@ -314,7 +314,7 @@ describe('apollo-server-fastify', () => {
             },
           },
           // Stack trace not included for NODE_ENV=test
-          __testing_nodeEnv__: undefined,
+          nodeEnv: '',
         });
 
         const apolloFetch = createApolloFetch({ uri });
@@ -330,7 +330,7 @@ describe('apollo-server-fastify', () => {
         expect(result.errors[0].extensions.exception.stacktrace).toBeDefined();
       });
 
-      it('propogates error codes in production', async () => {
+      it('propagates error codes in production', async () => {
         const { url: uri } = await createServer({
           typeDefs: gql`
             type Query {
@@ -344,7 +344,7 @@ describe('apollo-server-fastify', () => {
               },
             },
           },
-          __testing_nodeEnv__: 'production',
+          nodeEnv: 'production',
         });
 
         const apolloFetch = createApolloFetch({ uri });
@@ -359,7 +359,7 @@ describe('apollo-server-fastify', () => {
         expect(result.errors[0].extensions.exception).toBeUndefined();
       });
 
-      it('propogates error codes with null response in production', async () => {
+      it('propagates error codes with null response in production', async () => {
         const { url: uri } = await createServer({
           typeDefs: gql`
             type Query {
@@ -373,7 +373,7 @@ describe('apollo-server-fastify', () => {
               },
             },
           },
-          __testing_nodeEnv__: 'production',
+          nodeEnv: 'production',
         });
 
         const apolloFetch = createApolloFetch({ uri });
@@ -456,7 +456,7 @@ describe('apollo-server-fastify', () => {
         expect(result.data).toEqual({ cooks: books });
       });
 
-      it('contains no cacheControl Headers when uncachable', async () => {
+      it('contains no cacheControl Headers when uncacheable', async () => {
         const { url: uri } = await createServer({ typeDefs, resolvers });
 
         const apolloFetch = createApolloFetch({ uri }).useAfter(

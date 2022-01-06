@@ -114,11 +114,13 @@ export function throwHttpGraphQLError<E extends Error>(
   );
 }
 
+const NODE_ENV = process.env.NODE_ENV ?? '';
+
 export async function runHttpQuery(
   handlerArguments: Array<any>,
   request: HttpQueryRequest,
 ): Promise<HttpQueryResponse> {
-  function debugFromNodeEnv(nodeEnv: string | undefined) {
+  function debugFromNodeEnv(nodeEnv: string = NODE_ENV) {
     return nodeEnv !== 'production' && nodeEnv !== 'test';
   }
 
@@ -129,18 +131,15 @@ export async function runHttpQuery(
     // The options can be generated asynchronously, so we don't have access to
     // the normal options provided by the user, such as: formatError,
     // debug. Therefore, we need to do some unnatural things, such
-    // as use NODE_ENV to determine the debug settings
+    // as use NODE_ENV to determine the debug settings. Please note that this
+    // will not be sensitive to any runtime changes made to NODE_ENV.
     return throwHttpGraphQLError(500, [e as Error], {
-      debug: debugFromNodeEnv(process.env.NODE_ENV),
+      debug: debugFromNodeEnv(),
     });
   }
 
   if (options.debug === undefined) {
-    const nodeEnv =
-      '__testing_nodeEnv__' in options
-        ? options.__testing_nodeEnv__
-        : process.env.NODE_ENV;
-    options.debug = debugFromNodeEnv(nodeEnv);
+    options.debug = debugFromNodeEnv(options.nodeEnv);
   }
 
   // TODO: Errors thrown while resolving the context in
@@ -197,6 +196,8 @@ export async function runHttpQuery(
     debug: options.debug,
 
     plugins: options.plugins || [],
+
+    allowBatchedHttpRequests: options.allowBatchedHttpRequests,
   };
 
   return processHTTPRequest(config, request);
@@ -294,6 +295,14 @@ export async function processHTTPRequest<TContext>(
 
   try {
     if (Array.isArray(requestPayload)) {
+      if (options.allowBatchedHttpRequests === false) {
+        return throwHttpGraphQLError(
+          400,
+          [new Error('Operation batching disabled.')],
+          options,
+        );
+      }
+
       // We're processing a batch request
       const requests = requestPayload.map((requestParams) =>
         parseGraphQLRequest(httpRequest.request, requestParams),

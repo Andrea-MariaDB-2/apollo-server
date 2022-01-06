@@ -203,7 +203,7 @@ describe('apollo-server', () => {
         typeDefs,
         resolvers,
         stopOnTerminationSignals: false,
-        __testing_nodeEnv__: undefined,
+        nodeEnv: '',
       });
 
       const { server: httpServer } = await server.listen({ port: 0 });
@@ -258,7 +258,7 @@ describe('apollo-server', () => {
       await apolloFetch({ query: '{hello}' });
     });
 
-    it('creates a healthcheck endpoint', async () => {
+    it('creates a health check endpoint', async () => {
       server = new ApolloServer({
         typeDefs,
         resolvers,

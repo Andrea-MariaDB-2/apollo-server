@@ -49,7 +49,7 @@ Additionally, Apollo Server 3 [no longer re-exports all of the exports from the 
 
 We hope to add more fully-integrated subscription support to Apollo Server in a future version.
 
-> Note that the `subscriptions-transport-ws` library is not actively maintained. An alternative, actively-maintained `graphql-ws` package exists, which we intend to support in a future release. These libraries implement different protocols for GraphQL subscriptions over WebSocket, so you need to adjust your client to support `graphql-ws`. At the time of release of Apollo Server 3, the `graphql-ws` protocol is not yet supported by GraphQL Playground or the Apollo Studio Explorer.
+> Note that the `subscriptions-transport-ws` library is no longer maintained. A newer, actively-maintained `graphql-ws` package exists. These libraries implement different protocols for GraphQL subscriptions over WebSocket, so you need to adjust your client to support `graphql-ws`. This migration guide shows how to reenable `subscriptions-transport-ws` to make your transition from Apollo Server 2 to Apollo Server 3 as easy as possible, but we recommend that you then migrate from `subscriptions-transport-ws` to `graphql-ws` once you've finished the upgrade. The [subscriptions documentation](./data/subscriptions/) shows how to use the newer `graphql-ws` rather than the unmaintained `subscriptions-transport-ws`.
 
 #### Reenabling subscriptions
 
@@ -347,11 +347,13 @@ Note that if you are using Studio, make sure to [set your graph ref or graph ID]
 
 ### `schemaDirectives`
 
-In Apollo Server 2, you can pass `schemaDirectives` to `new ApolloServer` alongside `typeDefs` and `resolvers`. These arguments are all passed through to the [`makeExecutableSchema` function](https://www.graphql-tools.com/docs/generate-schema/#makeexecutableschemaoptions)  from the `graphql-tools` package. `graphql-tools` now considers `schemaDirectives` to be a [legacy feature](https://www.graphql-tools.com/docs/legacy-schema-directives/).
+In Apollo Server 2, you can pass `schemaDirectives` to `new ApolloServer` alongside `typeDefs` and `resolvers`. These arguments are all passed through to the [`makeExecutableSchema` function](https://www.graphql-tools.com/docs/generate-schema/#makeexecutableschemaoptions)  from the `graphql-tools` package.
+
+The `graphql-tools` project deprecated the  [`schemaDirectives` feature](https://github.com/ardatan/graphql-tools/blob/%40graphql-tools/schema%407.1.5/website/docs/legacy-schema-directives.md) and removed it in v8 of `@graphql-tools/schema`.
 
 In Apollo Server 3, the `ApolloServer` constructor now only passes `typeDefs`, `resolvers`, and `parseOptions` through to `makeExecutableSchema`.
 
-To provide other arguments to `makeExecutableSchema` (such as `schemaDirectives` or its replacement `schemaTransforms`), you can call `makeExecutableSchema` yourself and pass its returned schema as the `schema` constructor option.
+If you would like to still use `schemaDirectives`, you can install an older version of `@graphql-tools/schema` yourself with `npm install @graphql-tools/schema@7` and call `makeExecutableSchema` yourself and pass its returned schema as the `schema` constructor option.
 
 That is, you can replace:
 
@@ -366,6 +368,7 @@ new ApolloServer({
 with:
 
 ```javascript
+// Make sure you are using v7, not anything newer!
 import { makeExecutableSchema } from '@graphql-tools/schema';
 
 new ApolloServer({
@@ -376,6 +379,8 @@ new ApolloServer({
   }),
 });
 ```
+
+This can help you with the initial migration to Apollo Server 3. As `schemaDirectives` is no longer part of the actively maintained version of `@graphql-tools/schema`, we recommend that once you've successfully migrated to Apollo Server 3, you then port your schema directive to the [newer schema directives API](https://www.graphql-tools.com/docs/schema-directives) which uses the `mapSchema` function in `@graphql-tools/utils`.
 
 > In Apollo Server 2, there are subtle differences between providing a schema with `schema` versus providing it with `typeDefs` and `resolvers`. For example, the automatic definition of the `@cacheControl` directive is added only in the latter case. These differences are removed in Apollo Server 3 (for example, the definition of the `@cacheControl` directive is _never_ automatically added).
 

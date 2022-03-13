@@ -515,25 +515,30 @@ export function ApolloServerPluginUsageReporting<TContext>(
               // immediately fail due to unknown operation name.
               !graphqlUnknownOperationName
             ) {
-              // We're not completely ignoring the operation. But should we
-              // calculate a detailed trace of every field while we do so (either
-              // directly in this plugin, or in a subgraph by sending the
-              // apollo-federation-include-trace header)? That will allow this
-              // operation to contribute to the "field executions" column in the
-              // Studio Fields page, to the timing hints in Explorer and
-              // vscode-graphql, and to the traces visible under Operations. (Note
-              // that `true` here does not imply that this operation will
-              // necessarily be *sent* to the usage-reporting endpoint in the form
-              // of a trace --- it still might be aggregated into stats first. But
-              // capturing a trace will mean we can understand exactly what fields
-              // were executed and what their performance was, at the tradeoff of
-              // some overhead for tracking the trace (and transmitting it between
-              // subgraph and gateway).
-              const rawWeight = await fieldLevelInstrumentation(requestContext);
-              treeBuilder.trace.fieldExecutionWeight =
-                typeof rawWeight === 'number' ? rawWeight : rawWeight ? 1 : 0;
+              if (metrics.captureTraces === undefined) {
+                // We're not completely ignoring the operation. But should we
+                // calculate a detailed trace of every field while we do so (either
+                // directly in this plugin, or in a subgraph by sending the
+                // apollo-federation-include-trace header)? That will allow this
+                // operation to contribute to the "field executions" column in the
+                // Studio Fields page, to the timing hints in Explorer and
+                // vscode-graphql, and to the traces visible under Operations. (Note
+                // that `true` here does not imply that this operation will
+                // necessarily be *sent* to the usage-reporting endpoint in the form
+                // of a trace --- it still might be aggregated into stats first. But
+                // capturing a trace will mean we can understand exactly what fields
+                // were executed and what their performance was, at the tradeoff of
+                // some overhead for tracking the trace (and transmitting it between
+                // subgraph and gateway).
+                const rawWeight = await fieldLevelInstrumentation(
+                  requestContext,
+                );
+                treeBuilder.trace.fieldExecutionWeight =
+                  typeof rawWeight === 'number' ? rawWeight : rawWeight ? 1 : 0;
 
-              metrics.captureTraces = !!treeBuilder.trace.fieldExecutionWeight;
+                metrics.captureTraces =
+                  !!treeBuilder.trace.fieldExecutionWeight;
+              }
             }
           },
           async executionDidStart() {
@@ -634,6 +639,8 @@ export function ApolloServerPluginUsageReporting<TContext>(
                 statsReportKey = `## GraphQLUnknownOperationName\n`;
               }
 
+              const isExecutable = statsReportKey === undefined;
+
               if (statsReportKey) {
                 if (options.sendUnexecutableOperationDocuments) {
                   trace.unexecutedOperationBody = requestContext.source;
@@ -665,9 +672,16 @@ export function ApolloServerPluginUsageReporting<TContext>(
                 // organization's plan allows for viewing traces *and* we
                 // actually captured this as a full trace *and*
                 // sendOperationAsTrace says so.
+                //
+                // (As an edge case, if the reason metrics.captureTraces is
+                // falsey is that this is an unexecutable operation and thus we
+                // never ran the code in didResolveOperation that sets
+                // metrics.captureTrace, we allow it to be sent as a trace. This
+                // means we'll still send some parse and validation failures as
+                // traces, for the sake of the Errors page.)
                 asTrace:
                   graphMightSupportTraces &&
-                  !!metrics.captureTraces &&
+                  (!isExecutable || !!metrics.captureTraces) &&
                   sendOperationAsTrace(trace, statsReportKey),
                 includeTracesContributingToStats,
                 referencedFieldsByType,

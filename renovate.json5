@@ -5,6 +5,10 @@
     "group:graphql-toolsMonorepo",
   ],
   "schedule": null,
+  baseBranches: ["main", "version-4"],
+  // Override this value set in apollo-open-source and apollo-docs back to the default.
+  // It's nice to be able to see PRs for everything in the Dependency Dashboard.
+  prCreation: "immediate",
   // Disable circleci manager; see apollographql/federation's renovate file for details.
   "enabledManagers": ["npm"],
   "dependencyDashboard": true,
@@ -46,16 +50,29 @@
       allowedVersions: "15.x"
     },
     // We need to support Node v12, so we don't allow ourselves to use type definitions
-    // that would let us write v14-specific code.
+    // that would let us write v14-specific code. (In AS4, we stay on v14 instead.)
     {
-      "matchPackageNames": ["@types/node"],
-      "allowedVersions": "12.x"
+      matchPackageNames: ["@types/node"],
+      matchBaseBranches: ["main"],
+      allowedVersions: "12.x"
     },
-    // make-fetch-happen is used by the op reg plugin, which uses a cache API
-    // that is removed in v9.
     {
-      "matchPackageNames": ["make-fetch-happen"],
-      "allowedVersions": "8.x"
+      matchPackageNames: ["@types/node"],
+      matchBaseBranches: ["version-4"],
+      allowedVersions: "14.x"
+    },
+    // The changes required to upgrade to v7 aren't 100% trivial, so they're not worth
+    // doing on main, just on version-4. (Oddly, @types/lru-cache skipped directly from
+    // v5 to v6.)
+    {
+      matchPackageNames: ["lru-cache"],
+      matchBaseBranches: ["main"],
+      allowedVersions: "6.x"
+    },
+    {
+      matchPackageNames: ["@types/lru-cache"],
+      matchBaseBranches: ["main"],
+      allowedVersions: "5.x"
     },
     // node-fetch v3 only ships as ESM. We currently build to CommonJS and even
     // if we start publishing as ESM (#5627) we're not going to go ESM-only

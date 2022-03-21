@@ -1,6 +1,5 @@
 ---
 title: Server-side caching
-sidebar_title: Caching
 description: Configure caching behavior on a per-field basis
 ---
 
@@ -8,7 +7,7 @@ description: Configure caching behavior on a per-field basis
 
 Apollo Server enables you to define cache control settings (`maxAge` and `scope`) for each field in your schema:
 
-```graphql{5,7}
+```graphql {5,7}
 type Post {
   id: ID!
   title: String
@@ -73,7 +72,7 @@ Use `@cacheControl` for fields that should usually be cached with the same setti
 
 This example defines cache control settings for two fields of the `Post` type: `votes` and `readByCurrentUser`:
 
-```graphql{5,7}:title=schema.graphql
+```graphql {5,7} title="schema.graphql"
 type Post {
   id: ID!
   title: String
@@ -93,7 +92,7 @@ In this example:
 
 This example defines cache control settings for _all_ schema fields that return a `Post` object:
 
-```graphql{1}:title=schema.graphql
+```graphql {1} title="schema.graphql"
 type Post @cacheControl(maxAge: 240) {
   id: Int!
   title: String
@@ -106,7 +105,7 @@ type Post @cacheControl(maxAge: 240) {
 
 If another object type in this schema includes a field of type `Post` (or a list of `Post`s), that field's value is cached for a maximum of 240 seconds:
 
-```graphql:title=schema.graphql
+```graphql title="schema.graphql"
 type Comment {
   post: Post! # Cached for up to 240 seconds
   body: String!
@@ -115,7 +114,7 @@ type Comment {
 
 **Note that [field-level settings](#field-level-definitions) override type-level settings.** In the following case, `Comment.post` is cached for a maximum of 120 seconds, _not_ 240 seconds:
 
-```graphql:title=schema.graphql
+```graphql title="schema.graphql"
 type Comment {
   post: Post! @cacheControl(maxAge: 120)
   body: String!
@@ -133,7 +132,7 @@ You can decide how to cache a particular field's result _while_ you're resolving
 The `cacheControl` object includes a `setCacheHint` method, which you call like so:
 
 
-```js{4}
+```js {4}
 const resolvers = {
   Query: {
     post: (_, { id }, _, info) => {
@@ -292,7 +291,7 @@ query GetReaderBookTitle {
 
 ## Using with federation
 
-> Using cache control with Apollo Federation requires v0.28 of `@apollo/federation` in your subgraph, v0.36 of `@apollo/gateway` in your router, and v3.0.2 of Apollo Server in both servers.
+> Using cache control with Apollo Federation requires v0.1.0 of `@apollo/subgraph` (previously v0.28 of `@apollo/federation`) in your subgraph, v0.36 of `@apollo/gateway` in your router, and v3.0.2 of Apollo Server in both servers.
 
 When using [Apollo Federation](https://www.apollographql.com/docs/federation), the `@cacheControl` directive and `CacheControlScope` enum may be defined in a subgraph's schema. An Apollo Server-based subgraph will calculate and set the cache hint for the response that it sends to the gateway as it would for a non-federated Apollo Server sending a response to a client. The gateway will then calculate the cache hint for the overall response based on the most restrictive settings among all of the responses received from the subgraphs involved in query plan execution.
 
